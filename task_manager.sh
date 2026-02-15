@@ -48,13 +48,19 @@ write_task_line(){
 	       "$NEW_ID" "$title" "$priority" "$duedate" "$status" >> "$DB_FILE"
 }
 
-
+delete_task_line_by_id(){
+	read -p "Enter the task ID:: " task_id
+	line_num=$(awk '{print $1}' database | grep -n "$task_id" | cut -d: -f1)
+	sed -i "${line_num}d" "$DB_FILE"	
+}
 
 
 
 main(){
 	init_db
-	write_task_line
+	read_tasks
+	delete_task_line_by_id
+	read_tasks
 }
 
 main
