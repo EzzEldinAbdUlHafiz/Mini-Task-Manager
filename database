@@ -1,4 +1,2 @@
-ID         | TITLE                | PRIORITY  | DUE DATE   | STATUS     
--------------------------------------------------------------------------------------
-1          | first test           | high      | 2026/11/5  | done       
-3          | 3 task               | high      | 2026/5/6   | done       
+ID|TITLE|PRIORITY|DUE-DATE|STATUS
+1 | test 1 | low | 2026/05/06 | pending
