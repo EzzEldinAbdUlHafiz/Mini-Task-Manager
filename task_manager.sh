@@ -13,11 +13,13 @@ TODAY=$(date +%F)
 #DATABASE FUNCTIONS
 
 init_db(){
-	if ls "$DB_FILE" >/dev/null 2>&1; then
+	if [ -f $DB_FILE ]; then
     		echo "$DB_FILE exists."
 	else
-    		echo "$DB_FILE does not exist"
+    		echo -e "$DB_FILE does not exist \n creating the $DB_FILE"
     		touch $DB_FILE
+		printf "%-10s | %-20s | %-10s| %-10s | %-10s \n" "ID" "TITLE" "PRIORITY" "DUE DATE" "STATUS" > $DB_FILE
+		echo "-------------------------------------------------------------------------------------" >> $DB_FILE
 	fi
 }
 
@@ -39,8 +41,10 @@ write_task_line(){
 
 
 
+
+
 main(){
-	write_task_line
+	init_db
 }
 
 main
