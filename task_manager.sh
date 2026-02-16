@@ -1,47 +1,13 @@
 #!/bin/bash
 
+source ./crud.sh
+
 #Colors
 echored()    { echo -e "\033[31m$*\033[0m"; }
 echogreen()  { echo -e "\033[32m$*\033[0m"; }
 echoyellow() { echo -e "\033[33m$*\033[0m"; }
 echoblue()   { echo -e "\033[34m$*\033[0m"; }
 echopurple() { echo -e "\033[35m$*\033[0m"; }
-
-DB_FILE="database"
-NEW_TASK=""
-NEW_ID=""
-
-TODAY=$(date +%F)
-
-init_db() {
-	if [ -f $DB_FILE ]; then
-    		echo "$DB_FILE exists."
-	else
-    		echo -e "$DB_FILE does not exist \n creating the $DB_FILE"
-    		touch $DB_FILE
-		echo "ID|TITLE|PRIORITY|DUE-DATE|STATUS" > $DB_FILE
-	fi
-}
-
-read_tasks() {
-	awk '{print $0}' "$DB_FILE" | column -t -s '|' -o ' | '
-}
-
-generate_id() {
-	last_id=$(awk 'END {print $1}' "$DB_FILE")
-
-	if [[ $last_id =~ ^[0-9]+$ ]]; then
-		NEW_ID=$((last_id + 1))
-	else
-		NEW_ID=1
-	fi
-}
-
-write_task() {
-	echo "${NEW_ID} | ${1} | ${2} | ${3} | pending" >> "$DB_FILE"
-	echo "Task added successfully."
-	return
-}
 
 add_task(){
     generate_id
@@ -66,46 +32,26 @@ add_task(){
         esac
     done
 
-    # 3. Date Validation (YYYY/MM/DD)
+    # 3. Date Validation: Accept any input and normalize via 'date' command
     while true; do
-        read -p "Enter a duedate (YYYY/MM/DD): " duedate
-        # Regex: 4 digits / 2 digits / 2 digits
-        if [[ "$duedate" =~ ^[0-9]{4}/[0-9]{2}/[0-9]{2}$ ]]; then
+        read -p "Enter a duedate (e.g., 2026/12/31, 'next Friday', 'tomorrow'): " date_input
+
+        # This takes the user input and tries to format it to YYYY/MM/DD
+        # 2>/dev/null hides the system error so we can show our own
+        formatted_date=$(date -d "$date_input" "+%Y/%m/%d" 2>/dev/null)
+
+        if [[ $? -eq 0 ]]; then
+            duedate=$formatted_date
+            echo "Date validated and saved as: $duedate"
             break
         else
-            echo "Error: Date must be in YYYY/MM/DD format."
+            echo "Error: '$date_input' is not a recognized date. Please try again."
         fi
     done
 
     write_task "$title" "$priority" "$duedate"
 }
 
-delete_task() {
-	read -p "Enter the task ID:: " task_id
-	line_num=$(awk '{print $1}' database | grep -n "$task_id" | cut -d: -f1)
-	sed -i "${line_num}d" "$DB_FILE"	
-}
-
-update_task() {
-    read -p "Enter the task ID: " task_id
-
-    line_num=$(awk -v id="$task_id" '$1 == id {print NR}' $DB_FILE)
-
-    if [ -z "$line_num" ]; then
-        echo "Error: Task ID not found."
-        return
-    fi
-
-    read -p "Enter the title: " title
-    read -p "Enter the priority: " priority
-    read -p "Enter a duedate: " duedate
-    read -p "Enter the status: " status
-    
-    formatted_line="${task_id} | ${title} | ${priority} | ${duedate} | ${status}"
-    sed -i "${line_num}s#.*#${formatted_line}#" "$DB_FILE"
-
-    echo "Task updated successfully."
-}
 
 # MAIN MENU DISPLAY
 show_menu() {
