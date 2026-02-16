@@ -1,21 +1,23 @@
 #!/bin/bash
 
+source ./validation.sh
+
 DB_FILE="database"
 NEW_TASK=""
 NEW_ID=""
 
-init_db() {
-        if [ -f $DB_FILE ]; then
-                echo "$DB_FILE exists."
-        else
-                echo -e "$DB_FILE does not exist \n creating the $DB_FILE"
-                touch $DB_FILE
-                echo "ID|TITLE|PRIORITY|DUE-DATE|STATUS" > $DB_FILE
-        fi
+read_all_from_db() {
+        awk '{print $0}' "$DB_FILE" | column -t -s '|' -o ' | '
 }
 
-read_tasks() {
-        awk '{print $0}' "$DB_FILE" | column -t -s '|' -o ' | '
+read_filter_by_priority() {
+	priority_valid
+	awk -v p="$priority" 'BEGIN {FS="[ \t]*\\|[ \t]*"} $3 == p {print $0}' "$DB_FILE" | column -t -s '|' -o ' | '
+}
+
+read_filter_by_status() {
+	status_valid
+	awk -v s="$status" 'BEGIN {FS="[ \t]*\\|[ \t]*"} $5 == s {print $0}' "$DB_FILE" | column -t -s '|' -o ' | '
 }
 
 generate_id() {
@@ -28,35 +30,18 @@ generate_id() {
         fi
 }
 
-write_task() {
+write_task_in_db() {
         echo "${NEW_ID} | ${1} | ${2} | ${3} | pending" >> "$DB_FILE"
         echo "Task added successfully."
-        return
 }
 
-delete_task() {
-        read -p "Enter the task ID:: " task_id
-        line_num=$(awk '{print $1}' database | grep -n "$task_id" | cut -d: -f1)
+delete_task_from_db() {
+	line_num=$(awk -v id="${1}" '$1 == id {print NR}' $DB_FILE)
         sed -i "${line_num}d" "$DB_FILE"
 }
 
-update_task() {
-    read -p "Enter the task ID: " task_id
-
-    line_num=$(awk -v id="$task_id" '$1 == id {print NR}' $DB_FILE)
-
-    if [ -z "$line_num" ]; then
-        echo "Error: Task ID not found."
-        return
-    fi
-
-    read -p "Enter the title: " title
-    read -p "Enter the priority: " priority
-    read -p "Enter a duedate: " duedate
-    read -p "Enter the status: " status
-
-    formatted_line="${task_id} | ${title} | ${priority} | ${duedate} | ${status}"
-    sed -i "${line_num}s#.*#${formatted_line}#" "$DB_FILE"
-
-    echo "Task updated successfully."
+update_task_in_db() {
+    	formatted_line="${6} | ${2} | ${3} | ${4} | ${5}"
+    	sed -i "${1}s#.*#${formatted_line}#" "$DB_FILE"
+    	echo "Task updated successfully."
 }
