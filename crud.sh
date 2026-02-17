@@ -6,18 +6,33 @@ DB_FILE="database"
 NEW_TASK=""
 NEW_ID=""
 
+print_table() {
+        cat | column -t -s '|' -o '  |  '
+}
+
 read_all_from_db() {
-        awk '{print $0}' "$DB_FILE" | column -t -s '|' -o ' | '
+        cat "$DB_FILE" | print_table
 }
 
 read_filter_by_priority() {
 	priority_valid
-	awk -v p="$priority" 'BEGIN {FS="[ \t]*\\|[ \t]*"} $3 == p {print $0}' "$DB_FILE" | column -t -s '|' -o ' | '
+	awk -F '[ \t]*\\|[ \t]*' -v p="$priority" '$3 == p || NR == 1' "$DB_FILE" | print_table
 }
 
 read_filter_by_status() {
 	status_valid
-	awk -v s="$status" 'BEGIN {FS="[ \t]*\\|[ \t]*"} $5 == s {print $0}' "$DB_FILE" | column -t -s '|' -o ' | '
+	awk -F '[ \t]*\\|[ \t]*' -v s="$status" '$5 == s || NR == 1' "$DB_FILE" | print_table
+}
+
+search_in_db() {
+	line_nums=( $(awk '{print $3}' "$DB_FILE" | grep -n "$title" | cut -d ':' -f 1) )
+	echo "Found: ${#line_nums[@]}"
+
+	awk 'NR == 1 {print $0}' "$DB_FILE" > dummy_line
+	for item in "${line_nums[@]}"; do 
+		awk -v ln="$item" 'NR == ln {print $0}' "$DB_FILE" >> dummy_line
+	done
+	cat dummy_line | print_table
 }
 
 generate_id() {

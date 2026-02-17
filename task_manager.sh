@@ -1,15 +1,15 @@
 #!/bin/bash
 
-source ./crud.sh
-source ./validation.sh
-
-
 #Colors
 echored()    { echo -e "\033[31m$*\033[0m"; }
 echogreen()  { echo -e "\033[32m$*\033[0m"; }
 echoyellow() { echo -e "\033[33m$*\033[0m"; }
 echoblue()   { echo -e "\033[34m$*\033[0m"; }
 echopurple() { echo -e "\033[35m$*\033[0m"; }
+
+source ./crud.sh
+source ./validation.sh
+source ./reports.sh
 
 DB_FILE="database"
 
@@ -19,7 +19,7 @@ init_db() {
         else
                 echo -e "$DB_FILE does not exist \n creating the $DB_FILE"
                 touch $DB_FILE
-                echo "ID|TITLE|PRIORITY|DUE-DATE|STATUS" > $DB_FILE
+                echo "ID | TITLE | PRIORITY | DUE-DATE | STATUS" > $DB_FILE
         fi
 }
 
@@ -38,18 +38,15 @@ list_tasks() {
                 case "$list_choice" in
                         1)
                                 clear
-                                echo "---- UPDATE TITLE ----"
                                 read_all_from_db
                                 ;;
                         2)
                                 clear
-                                echo "---- UPDATE PRIORITY ----"
                                 read_filter_by_priority
                                 ;;
 
                         3)
                                 clear
-                                echo "---- UPDATE DUE DATE ----"
                                 read_filter_by_status
                                 ;;
 
@@ -85,10 +82,10 @@ update_task() {
                 return
         fi
 
-	title=$(awk -v id="$task_id" '$1 == id {print $3}' $DB_FILE)
-        priority=$(awk -v id="$task_id" '$1 == id {print $5}' $DB_FILE)
-        duedate=$(awk -v id="$task_id" '$1 == id {print $7}' $DB_FILE)
-        status=$(awk -v id="$task_id" '$1 == id {print $9}' $DB_FILE)
+	title=$(awk -v id="$task_id" -F '[ \t]*\\|[ \t]*' '$1 == id {print $2}' $DB_FILE)
+        priority=$(awk -v id="$task_id"  -F '[ \t]*\\|[ \t]*' '$1 == id {print $3}' $DB_FILE)
+        duedate=$(awk -v id="$task_id"  -F '[ \t]*\\|[ \t]*' '$1 == id {print $4}' $DB_FILE)
+        status=$(awk -v id="$task_id"  -F '[ \t]*\\|[ \t]*' '$1 == id {print $5}' $DB_FILE)
 
 	while true; do
 
@@ -176,6 +173,12 @@ delete_task() {
                 esac
 
         done
+}
+
+search_task() {
+	title_valid
+	clear
+	search_in_db
 }
 	
 

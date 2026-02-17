@@ -5,9 +5,9 @@ title_valid() {
     while true; do
         read -p "Enter the title: " title
         if [[ -z "$title" ]]; then
-            echo "Error: Title cannot be empty."
+            echored "Error: Title cannot be empty."
         elif [[ "$title" == *"|"* ]]; then
-            echo "Error: Title cannot contain the '|' character."
+            echored "Error: Title cannot contain the '|' character."
         else
             break
         fi
@@ -20,7 +20,7 @@ priority_valid() {
         read -p "Enter the priority (high/medium/low): " priority
         case "${priority,,}" in  # ,, converts input to lowercase for easier matching
             high|medium|low) break ;;
-            *) echo "Error: Please enter 'high', 'medium', or 'low'." ;;
+            *) echored "Error: Please enter 'high', 'medium', or 'low'." ;;
         esac
     done
 }
@@ -39,7 +39,7 @@ date_valid() {
             echo "Date validated and saved as: $duedate"
             break
         else
-            echo "Error: '$date_input' is not a recognized date. Please try again."
+            echored "Error: '$date_input' is not a recognized date. Please try again."
         fi
     done
 }
@@ -57,7 +57,7 @@ status_valid() {
             			break
             			;;
         		*)
-            			echo "Error: Invalid status. Please enter 'pending', 'in-progress', or 'done'."
+            			echored "Error: Invalid status. Please enter 'pending', 'in-progress', or 'done'."
             			;;
     		esac
 	done
