@@ -33,6 +33,8 @@ search_in_db() {
 		awk -v ln="$item" 'NR == ln {print $0}' "$DB_FILE" >> dummy_line
 	done
 	cat dummy_line | print_table
+
+	rm dummy_line
 }
 
 generate_id() {
