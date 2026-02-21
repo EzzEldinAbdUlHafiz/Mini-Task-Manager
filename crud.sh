@@ -28,13 +28,10 @@ search_in_db() {
 	line_nums=( $(awk -F '[ \t]*\\|[ \t]*' '{print $2}' "$DB_FILE" | grep -n "$title" | cut -d ':' -f 1) )
 	echo "Found: ${#line_nums[@]}"
 
-	awk 'NR == 1 {print $0}' "$DB_FILE" > dummy_line
 	for item in "${line_nums[@]}"; do 
-		awk -v ln="$item" 'NR == ln {print $0}' "$DB_FILE" >> dummy_line
+		awk -v ln="$item" 'NR == ln || NR == 1 {print $0}' "$DB_FILE" | print_table
 	done
-	cat dummy_line | print_table
-
-	rm dummy_line
+	
 }
 
 generate_id() {
