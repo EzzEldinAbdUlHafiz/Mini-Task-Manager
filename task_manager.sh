@@ -145,6 +145,13 @@ update_task() {
 delete_task() {
 	read_all_from_db
 	read -p "Enter the task ID:: " task_id
+
+        line_num=$(awk -v id="${task_id}" '$1 == id {print NR}' $DB_FILE)
+	if [ -z "$line_num" ]; then
+                echo "Error: Task ID not found."
+                return
+        fi
+
 	while true; do
 
 		echo "Are you sure you want to delete task ID number "${task_id}
@@ -158,7 +165,7 @@ delete_task() {
                 case "$delete_choice" in
                         1)
                                 clear
-				delete_task_from_db "${task_id}"
+				delete_task_from_db "${line_num}"
                                 break
                                 ;;
                         2)
@@ -180,6 +187,32 @@ search_task() {
 	clear
 	search_in_db
 }
+
+export_to_CSV() {
+	echo "Do you want to create a .CSV file from the tasks"
+
+	echo
+        echoblue "1) YES"
+        echoblue "2) NO"
+        echo
+
+	while true; do
+		read -rp "Your choice: " csv_choice
+			case $csv_choice in
+				1)
+                                        read -rp "Enter the file name:" filename
+					export_db_to_CSV "${filename}"
+					echo "${filename}.csv has been created"
+                                        break
+					;;
+				2)
+					break
+					;;
+				*) 
+					echo "Invalid option $REPLY"
+			esac
+	done
+}
 	
 
 # MAIN MENU DISPLAY
@@ -195,7 +228,9 @@ show_menu() {
     echoblue "4) Delete Task"
     echoblue "5) Search Task"
     echoblue "6) Reports"
-    echoblue "7) Exit"
+    echoblue "7) Export To A CSV File"
+    echoblue "8) Sort tasks"
+    echoblue "9) Exit"
     echo
 }
 
@@ -250,7 +285,48 @@ show_reports_menu() {
     done
 }
 
+sorting_menu() {
 
+    while true; do
+
+        echopurple "=========================================="
+        echopurple "                SORTING"
+        echopurple "=========================================="
+        echo
+        echoblue "1) Sort By Date"
+        echoblue "2) Sort By Priority"
+        echoblue "3) Back to Main Menu"
+        echo
+
+        read -rp "Enter your choice: " report_choice
+
+        case "$report_choice" in
+
+            1)
+                clear
+                echo "---- Sort By Date ----"
+                sort_by_date
+                ;;
+
+            2)
+                clear
+                echo "---- Sort By Priority ----"
+                sort_by_priority
+                ;;
+
+            3)
+                clear
+                return
+                ;;
+
+            *)
+                echored "Invalid option! Please choose 1-3."
+                ;;
+
+        esac
+
+    done
+}
 
 # MAIN PROGRAM LOOP
 main() {
@@ -305,8 +381,20 @@ main() {
                 clear
                 show_reports_menu
                 ;;
-
+                
+        
             7)
+                clear
+                export_to_CSV
+                ;;
+
+
+            8)
+                echo
+                sorting_menu
+                ;;
+
+        9)
                 echo
                 echoyellow "Exiting Task Manager..."
                 echoyellow "Goodbye!"
@@ -315,7 +403,7 @@ main() {
 
             *)
                 echo
-                echored "Invalid option! Please choose between 1-7."
+                echored "Invalid option! Please choose between 1-8."
                 ;;
 
         esac

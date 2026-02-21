@@ -8,6 +8,8 @@ title_valid() {
             echored "Error: Title cannot be empty."
         elif [[ "$title" == *"|"* ]]; then
             echored "Error: Title cannot contain the '|' character."
+        elif [[ "$title" == *","* ]]; then
+            echored "Error: Title cannot contain the ',' character."
         else
             break
         fi
@@ -15,10 +17,9 @@ title_valid() {
 }
 
 priority_valid() {
-        # 2. Priority Validation (Choice: high, medium, low)
     while true; do
         read -p "Enter the priority (high/medium/low): " priority
-        case "${priority,,}" in  # ,, converts input to lowercase for easier matching
+        case "${priority,,}" in  
             high|medium|low) break ;;
             *) echored "Error: Please enter 'high', 'medium', or 'low'." ;;
         esac
@@ -26,12 +27,9 @@ priority_valid() {
 }
 
 date_valid() {
-        # 3. Date Validation: Accept any input and normalize via 'date' command
     while true; do
         read -p "Enter a duedate (e.g., 2026/12/31, 'next Friday', 'tomorrow'): " date_input
 
-        # This takes the user input and tries to format it to YYYY/MM/DD
-        # 2>/dev/null hides the system error so we can show our own
         formatted_date=$(date -d "$date_input" "+%Y/%m/%d" 2>/dev/null)
 
         if [[ $? -eq 0 ]]; then
@@ -48,8 +46,8 @@ status_valid() {
 	while true; do
 	    read -p "Enter status (pending/in-progress/done): " status
 
-    		# Convert to lowercase to make it user-friendly
-    		status_lower="${status,,}"
+    		
+    		status_lower="${status,,}" # Convert to lowercase to make it user-friendly
 
     		case "$status_lower" in
         		pending|in-progress|done)

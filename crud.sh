@@ -11,7 +11,7 @@ print_table() {
 }
 
 read_all_from_db() {
-        cat "$DB_FILE" | print_table
+		awk -F '[ \t]*\\|[ \t]*' '{print $0}' "$DB_FILE" | print_table
 }
 
 read_filter_by_priority() {
@@ -50,12 +50,30 @@ write_task_in_db() {
 }
 
 delete_task_from_db() {
-	line_num=$(awk -v id="${1}" '$1 == id {print NR}' $DB_FILE)
-        sed -i "${line_num}d" "$DB_FILE"
+	sed -i "${1}d" "$DB_FILE"
+	echo "Task id ${1} has been deleted"
 }
 
 update_task_in_db() {
     	formatted_line="${6} | ${2} | ${3} | ${4} | ${5}"
     	sed -i "${1}s#.*#${formatted_line}#" "$DB_FILE"
     	echo "Task updated successfully."
+}
+
+export_db_to_CSV() {
+	sed 's/|/,/g' "$DB_FILE" >> "$1".csv				
+}
+
+sort_by_date() {
+	res=$(awk -F '[ \t]*\\|[ \t]*' 'NR == 1{print $0}' "$DB_FILE")
+	res+=$'\n'$(awk -F '[ \t]*\\|[ \t]*' 'NR > 1 {print $0}' "$DB_FILE" | sort -t '|' -k4)
+	echo "$res" | print_table
+}
+
+sort_by_priority() {
+	res=$(awk -F '[ \t]*\\|[ \t]*' 'NR == 1{print $0}' "$DB_FILE")
+	res+=$'\n'$(awk -F '[ \t]*\\|[ \t]*' -v p="high" '$3 == p' "$DB_FILE")
+	res+=$'\n'$(awk -F '[ \t]*\\|[ \t]*' -v p="medium" '$3 == p' "$DB_FILE")
+	res+=$'\n'$(awk -F '[ \t]*\\|[ \t]*' -v p="low" '$3 == p' "$DB_FILE")
+	echo "$res" | print_table
 }
