@@ -25,7 +25,7 @@ read_filter_by_status() {
 }
 
 search_in_db() {
-	line_nums=( $(awk '{print $3}' "$DB_FILE" | grep -n "$title" | cut -d ':' -f 1) )
+	line_nums=( $(awk -F '[ \t]*\\|[ \t]*' '{print $2}' "$DB_FILE" | grep -n "$title" | cut -d ':' -f 1) )
 	echo "Found: ${#line_nums[@]}"
 
 	awk 'NR == 1 {print $0}' "$DB_FILE" > dummy_line

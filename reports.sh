@@ -13,3 +13,20 @@ report_summary() {
 	echo "progress: ${sum_progress}"
 	echo "done: ${sum_done}"
 }
+
+report_overdue() {
+	current_date=$(date "+%Y/%m/%d")
+	awk -F '[ \t]*\\|[ \t]*' -v d="$current_date" -v s="done" '$4 < d && $5 != s || NR == 1 {print $0}' "$DB_FILE" | print_table
+}
+
+report_priority() {
+	echo
+	echo "---- LOW PRIORITY ----"
+	awk -F '[ \t]*\\|[ \t]*' -v p="low" '$3 == p || NR == 1 {print $0}' "$DB_FILE" | print_table
+	echo
+	echo "---- MEDIUM PRIORITY ----"
+	awk -F '[ \t]*\\|[ \t]*' -v p="medium" '$3 == p || NR == 1 {print $0}' "$DB_FILE" | print_table
+	echo
+	echo "---- HIGI PRIORITY ----"
+	awk -F '[ \t]*\\|[ \t]*' -v p="high" '$3 == p || NR == 1 {print $0}' "$DB_FILE" | print_table
+}
