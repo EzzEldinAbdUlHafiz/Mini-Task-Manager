@@ -25,41 +25,38 @@ init_db() {
 
 list_tasks() {
 	while true; do
-
                 echo
-                echoblue "1) List All Tasks"
-                echoblue "2) Filter By Priority"
-                echoblue "3) Filter By status"
-                echoblue "4) Back to Main Menu"
-                echo
-
-                read -rp "Choose what to list: " list_choice
-
-                case "$list_choice" in
-                        1)
+                PS3="Choose what to list: "
+                options=("List All Tasks" "Filter By Priority" "Filter By status" "Back to Main Menu")
+                select list_choice in "${options[@]}"; do
+                    case "$list_choice" in
+                        "List All Tasks")
                                 clear
                                 read_all_from_db
+                                break
                                 ;;
-                        2)
+                        "Filter By Priority")
                                 clear
                                 read_filter_by_priority
-                                ;;
-
-                        3)
-                                clear
-                                read_filter_by_status
-                                ;;
-
-                        4)
                                 break
                                 ;;
 
-                        *)
-                                echored "Invalid option! Please choose 1-4."
+                        "Filter By status")
+                                clear
+                                read_filter_by_status
+                                break
                                 ;;
 
-                esac
+                        "Back to Main Menu")
+                                break 2
+                                ;;
 
+                        *)
+                                echored "Invalid option! Please choose a number from the menu."
+                                ;;
+
+                    esac
+                done
         done
 }
 
@@ -88,54 +85,47 @@ update_task() {
         status=$(awk -v id="$task_id"  -F '[ \t]*\\|[ \t]*' '$1 == id {print $5}' $DB_FILE)
 
 	while true; do
-
                 echo
-                echoblue "1) Update Title"
-                echoblue "2) Update Priority"
-                echoblue "3) Update Due Date"
-                echoblue "4) Update Status"
-                echoblue "5) Back to Main Menu"
-                echo
-
-                read -rp "Choose what you want to update: " update_choice
-
-                case "$update_choice" in
-                        1)
+                PS3="Choose what you want to update: "
+                options=("Update Title" "Update Priority" "Update Due Date" "Update Status" "Back to Main Menu")
+                select update_choice in "${options[@]}"; do
+                    case "$update_choice" in
+                        "Update Title")
                                 clear
                                 echo "---- UPDATE TITLE ----"
                                 title_valid
 				break
                                 ;;
-                        2)
+                        "Update Priority")
                                 clear
                                 echo "---- UPDATE PRIORITY ----"
                                 priority_valid
 				break
                                 ;;
 
-                        3)
+                        "Update Due Date")
                                 clear
                                 echo "---- UPDATE DUE DATE ----"
                                 date_valid
 				break
                                 ;;
 
-                        4)
+                        "Update Status")
                                 clear
                                 echo "---- UPDATE STATUS ----"
                                 status_valid
 				break
                                 ;;
-                        5)
-                                break
+                        "Back to Main Menu")
+                                break 2
                                 ;;
 
                         *)
-                                echored "Invalid option! Please choose 1-5."
+                                echored "Invalid option! Please choose a number from the menu."
                                 ;;
 
-                esac
-
+                    esac
+                done
         done
 
 	update_task_in_db "$line_num" "$title" "$priority" "$duedate" "$status" "$task_id"
@@ -153,32 +143,28 @@ delete_task() {
         fi
 
 	while true; do
-
 		echo "Are you sure you want to delete task ID number "${task_id}
                 echo
-                echoblue "1) YES"
-                echoblue "2) NO"
-                echo
-
-		read -rp "Your choice: " delete_choice
-
-                case "$delete_choice" in
-                        1)
+                PS3="Your choice: "
+                options=("YES" "NO")
+                select delete_choice in "${options[@]}"; do
+                    case "$delete_choice" in
+                        "YES")
                                 clear
 				delete_task_from_db "${line_num}"
-                                break
+                                break 2
                                 ;;
-                        2)
+                        "NO")
 				clear
-                                break
+                                break 2
                                 ;;
 
                         *)
                                 echored "Invalid option! Please choose YES or NO."
                                 ;;
 
-                esac
-
+                    esac
+                done
         done
 }
 
@@ -219,93 +205,87 @@ show_menu() {
 show_reports_menu() {
 
     while true; do
-
         echopurple "=========================================="
         echopurple "                REPORTS"
         echopurple "=========================================="
         echo
-        echoblue "1) Task Summary"
-        echoblue "2) Overdue Tasks"
-        echoblue "3) Priority Report"
-        echoblue "4) Back to Main Menu"
-        echo
+        PS3="Enter your choice: "
+        options=("Task Summary" "Overdue Tasks" "Priority Report" "Back to Main Menu")
+        select report_choice in "${options[@]}"; do
+            case "$report_choice" in
 
-        read -rp "Enter your choice: " report_choice
+                "Task Summary")
+                    clear
+                    echo "---- TASK SUMMARY ----"
+                    report_summary
+                    break
+                    ;;
 
-        case "$report_choice" in
+                "Overdue Tasks")
+                    clear
+                    echo "---- OVERDUE TASKS ----"
+                    report_overdue
+                    break
+                    ;;
 
-            1)
-                clear
-                echo "---- TASK SUMMARY ----"
-                report_summary
-                ;;
+                "Priority Report")
+                    clear
+                    echo "---- PRIORITY REPORT ----"
+                    report_priority
+                    break
+                    ;;
 
-            2)
-                clear
-                echo "---- OVERDUE TASKS ----"
-                report_overdue
-                ;;
+                "Back to Main Menu")
+                    clear
+                    return
+                    ;;
 
-            3)
-                clear
-                echo "---- PRIORITY REPORT ----"
-                report_priority
-                ;;
+                *)
+                    echored "Invalid option! Please choose a number from the menu."
+                    ;;
 
-            4)
-                clear
-                return
-                ;;
-
-            *)
-                echored "Invalid option! Please choose 1-4."
-                ;;
-
-        esac
-
+            esac
+        done
     done
 }
 
 sorting_menu() {
 
     while true; do
-
         echopurple "=========================================="
         echopurple "                SORTING"
         echopurple "=========================================="
         echo
-        echoblue "1) Sort By Date"
-        echoblue "2) Sort By Priority"
-        echoblue "3) Back to Main Menu"
-        echo
+        PS3="Enter your choice: "
+        options=("Sort By Date" "Sort By Priority" "Back to Main Menu")
+        select report_choice in "${options[@]}"; do
+            case "$report_choice" in
 
-        read -rp "Enter your choice: " report_choice
+                "Sort By Date")
+                    clear
+                    echo "---- Sort By Date ----"
+                    sort_by_date
+                    break
+                    ;;
 
-        case "$report_choice" in
+                "Sort By Priority")
+                    clear
+                    echo "---- Sort By Priority ----"
+                    sort_by_priority
+                    break
+                    ;;
 
-            1)
-                clear
-                echo "---- Sort By Date ----"
-                sort_by_date
-                ;;
+                "Back to Main Menu")
+                    clear
+                    return
+                    ;;
 
-            2)
-                clear
-                echo "---- Sort By Priority ----"
-                sort_by_priority
-                ;;
+                *)
+                    echored "Invalid option! Please choose a number from the menu."
+                    ;;
 
-            3)
-                clear
-                return
-                ;;
-
-            *)
-                echored "Invalid option! Please choose 1-3."
-                ;;
-
-        esac
-
+            esac
+        done
     done
 }
 
@@ -323,73 +303,84 @@ main() {
 
     # Infinite loop
     while true; do
-	show_menu
-        read -rp "Enter your choice: " choice
+        clear
+        echopurple "=========================================="
+        echopurple "            MINI TASK MANAGER"
+        echopurple "=========================================="
+        echo
 
-        case "$choice" in
+        # Using select for the main menu
+        PS3="Enter your choice: "
+        options=("Add Task" "List Tasks" "Update Task" "Delete Task" "Search Task" "Reports" "Export To A CSV File" "Sort tasks" "Exit")
+        select choice in "${options[@]}"; do
+            case "$choice" in
+                "Add Task")
+                    clear
+                    echo "---- ADD TASK ----"
+                    add_task
+                    break
+                    ;;
 
-            1)
-                clear
-                echo "---- ADD TASK ----"
-                add_task
-                ;;
+                "List Tasks")
+                    clear
+                    echoyellow "---- LIST TASKS ----"
+                    list_tasks
+                    break
+                    ;;
 
-            2)
-                clear
-                echoyellow "---- LIST TASKS ----"
-                list_tasks
-                ;;
+                "Update Task")
+                    clear
+                    echoyellow "---- UPDATE TASK ----"
+                    update_task
+                    break
+                    ;;
 
-            3)
-                clear
-                echoyellow "---- UPDATE TASK ----"
-                update_task
-                ;;
+                "Delete Task")
+                    clear
+                    echoyellow "---- DELETE TASK ----"
+                    delete_task
+                    break
+                    ;;
 
-            4)
-                clear
-                echoyellow "---- DELETE TASK ----"
-                delete_task
-                ;;
+                "Search Task")
+                    clear
+                    echoyellow "---- SEARCH TASK ----"
+                    search_task
+                    break
+                    ;;
 
-            5)
-                clear
-                echoyellow "---- SEARCH TASK ----"
-                search_task
-                ;;
+                "Reports")
+                    clear
+                    show_reports_menu
+                    break
+                    ;;
+                    
+                "Export To A CSV File")
+                    clear
+                    export_to_CSV
+                    break
+                    ;;
 
-            6)
-                clear
-                show_reports_menu
-                ;;
-                
-        
-            7)
-                clear
-                export_to_CSV
-                ;;
+                "Sort tasks")
+                    echo
+                    sorting_menu
+                    break
+                    ;;
 
+                "Exit")
+                    echo
+                    echoyellow "Exiting Task Manager..."
+                    echoyellow "Goodbye!"
+                    exit 0
+                    ;;
 
-            8)
-                echo
-                sorting_menu
-                ;;
-
-        9)
-                echo
-                echoyellow "Exiting Task Manager..."
-                echoyellow "Goodbye!"
-                exit 0
-                ;;
-
-            *)
-                echo
-                echored "Invalid option! Please choose between 1-8."
-                ;;
-
-        esac
-
-    done
+                *)
+                    echo
+                    echored "Invalid option! Please choose a number from the menu."
+                    ;;
+            esac
+        done # End of select loop
+    done # End of main while true loop
 }
 
 # Run Main
