@@ -31,7 +31,7 @@ search_in_db() {
 	for item in "${line_nums[@]}"; do 
 		res+=$\n$(awk -v ln="$item" 'NR == ln || NR == 1 {print $0}' "$DB_FILE" )
 	done
-	echo $res | print_table
+	echo "$res" | print_table
 }
 
 generate_id() {
