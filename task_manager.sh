@@ -172,6 +172,7 @@ search_task() {
 	title_valid
 	clear
 	search_in_db
+    read -p "Press any key to continue"
 }
 
 export_to_CSV() {

@@ -27,11 +27,11 @@ read_filter_by_status() {
 search_in_db() {
 	line_nums=( $(awk -F '[ \t]*\\|[ \t]*' '{print $2}' "$DB_FILE" | grep -n "$title" | cut -d ':' -f 1) )
 	echo "Found: ${#line_nums[@]}"
-
+	res=$(awk 'NR == 1 {print $0}' "$DB_FILE")
 	for item in "${line_nums[@]}"; do 
-		awk -v ln="$item" 'NR == ln || NR == 1 {print $0}' "$DB_FILE" | print_table
+		res+=$\n$(awk -v ln="$item" 'NR == ln || NR == 1 {print $0}' "$DB_FILE" )
 	done
-	
+	echo $res | print_table
 }
 
 generate_id() {
