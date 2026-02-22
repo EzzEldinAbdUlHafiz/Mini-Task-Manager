@@ -29,7 +29,7 @@ search_in_db() {
 	echo "Found: ${#line_nums[@]}"
 	res=$(awk 'NR == 1 {print $0}' "$DB_FILE")
 	for item in "${line_nums[@]}"; do 
-		res+=$'\n'$(awk -v ln="$item" 'NR == ln || NR == 1 {print $0}' "$DB_FILE" )
+		res+=$'\n'$(awk -v ln="$item" 'NR == ln {print $0}' "$DB_FILE" )
 	done
 	echo "$res" | print_table
 }
