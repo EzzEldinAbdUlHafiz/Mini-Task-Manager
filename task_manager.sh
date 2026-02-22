@@ -189,29 +189,10 @@ search_task() {
 }
 
 export_to_CSV() {
-	echo "Do you want to create a .CSV file from the tasks"
-
-	echo
-        echoblue "1) YES"
-        echoblue "2) NO"
-        echo
-
-	while true; do
-		read -rp "Your choice: " csv_choice
-			case $csv_choice in
-				1)
-                                        read -rp "Enter the file name:" filename
-					export_db_to_CSV "${filename}"
-					echo "${filename}.csv has been created"
-                                        break
-					;;
-				2)
-					break
-					;;
-				*) 
-					echo "Invalid option $REPLY"
-			esac
-	done
+        read -rp "Enter the file name:" filename
+        export_db_to_CSV "${filename}"
+        echo "${filename}.csv has been created"
+                                        
 }
 	
 
