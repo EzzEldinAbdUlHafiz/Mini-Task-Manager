@@ -363,7 +363,7 @@ main() {
                     ;;
 
                 "Sort tasks")
-                    echo
+                    clear
                     sorting_menu
                     break
                     ;;

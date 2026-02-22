@@ -22,11 +22,19 @@ report_overdue() {
 report_priority() {
 	echo
 	echo "---- LOW PRIORITY ----"
+	sum_low=$(awk -F '[ \t]*\\|[ \t]*' -v p="low" -v i=0 '$3 == p {i++} END {print i}' "$DB_FILE")
+	echo "Found: ${sum_low}"
 	awk -F '[ \t]*\\|[ \t]*' -v p="low" '$3 == p || NR == 1 {print $0}' "$DB_FILE" | print_table
 	echo
+
 	echo "---- MEDIUM PRIORITY ----"
+	sum_medium=$(awk -F '[ \t]*\\|[ \t]*' -v p="medium" -v i=0 '$3 == p {i++} END {print i}' "$DB_FILE")
+	echo "Found: ${sum_medium}"
 	awk -F '[ \t]*\\|[ \t]*' -v p="medium" '$3 == p || NR == 1 {print $0}' "$DB_FILE" | print_table
 	echo
+
 	echo "---- HIGI PRIORITY ----"
+	sum_high=$(awk -F '[ \t]*\\|[ \t]*' -v p="high" -v i=0 '$3 == p {i++} END {print i}' "$DB_FILE")
+	echo "Found: ${sum_high}"
 	awk -F '[ \t]*\\|[ \t]*' -v p="high" '$3 == p || NR == 1 {print $0}' "$DB_FILE" | print_table
 }
