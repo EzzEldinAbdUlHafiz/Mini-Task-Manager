@@ -25,12 +25,8 @@ read_filter_by_status() {
 }
 
 search_in_db() {
-	line_nums=( $(awk -F '[ \t]*\\|[ \t]*' '{print $2}' "$DB_FILE" | grep -in "$title" | cut -d ':' -f 1 | awk 'NR > 1 {print $1}') )
-	echo "Found: ${#line_nums[@]}"
 	res=$(awk 'NR == 1 {print $0}' "$DB_FILE")
-	for item in "${line_nums[@]}"; do
-		res+=$'\n'$(awk -v ln="$item" 'NR == ln && NR != 1 {print $0}' "$DB_FILE" )
-	done
+	res+=$'\n'$(awk -F '[ \t]*\\|[ \t]*' -v t=$title 'NR != 1 {if ($2 ~ t) print $0}' "$DB_FILE")
 	echo "$res" | print_table
 }
 
