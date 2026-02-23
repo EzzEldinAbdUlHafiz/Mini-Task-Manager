@@ -25,9 +25,10 @@ read_filter_by_status() {
 }
 
 search_in_db() {
-	res=$(awk 'NR == 1 {print $0}' "$DB_FILE")
-	res+=$'\n'$(awk -F '[ \t]*\\|[ \t]*' -v t=$title 'NR != 1 {if ($2 ~ t) print $0}' "$DB_FILE")
-	echo "$res" | print_table
+	# res=$(awk 'NR == 1 {print $0}' "$DB_FILE")
+	# res+=$'\n'$(awk -F '[ \t]*\\|[ \t]*' -v t=$title 'NR != 1 {if ($2 ~ t) print $0}' "$DB_FILE")
+	# echo "$res" | print_table
+	awk -F'|' -v t=$title '{if (NR == 1) print $0; if (NR > 1 && tolower($2) ~ tolower(t)) print $0}' "$DB_FILE" | print_table
 }
 
 generate_id() {
