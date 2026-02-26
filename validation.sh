@@ -1,7 +1,7 @@
 #!/bin/bash
 
 title_valid() {
-        # 1. Title Validation (No pipes, not empty)
+    # 1. Title Validation (No pipes, not empty)
     while true; do
         read -p "Enter the title: " title
         if [[ -z "$title" ]]; then
@@ -19,7 +19,7 @@ title_valid() {
 priority_valid() {
     while true; do
         read -p "Enter the priority (high/medium/low): " priority
-        case "${priority,,}" in  
+        case "${priority,,}" in
             high|medium|low) break ;;
             *) echored "Error: Please enter 'high', 'medium', or 'low'." ;;
         esac
@@ -43,20 +43,19 @@ date_valid() {
 }
 
 status_valid() {
-	while true; do
-	    read -p "Enter status (pending/in-progress/done): " status
+    while true; do
+        read -p "Enter status (pending/in-progress/done): " status
 
-    		
-    		status_lower="${status,,}" # Convert to lowercase to make it user-friendly
+        status_lower="${status,,}" # Convert to lowercase to make it user-friendly
 
-    		case "$status_lower" in
-        		pending|in-progress|done)
-            			status="$status_lower"
-            			break
-            			;;
-        		*)
-            			echored "Error: Invalid status. Please enter 'pending', 'in-progress', or 'done'."
-            			;;
-    		esac
-	done
+        case "$status_lower" in
+            pending|in-progress|done)
+                status="$status_lower"
+                break
+                ;;
+            *)
+                echored "Error: Invalid status. Please enter 'pending', 'in-progress', or 'done'."
+                ;;
+        esac
+    done
 }
