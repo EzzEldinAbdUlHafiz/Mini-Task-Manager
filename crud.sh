@@ -11,24 +11,21 @@ print_table() {
 }
 
 read_all_from_db() {
-    awk -F '[ \t]*\\|[ \t]*' '{print $0}' "$DB_FILE" | print_table
+    (echogreen "$(awk -F '[ \t]*\\|[ \t]*' 'NR==1{print $0}' "$DB_FILE")"; awk -F '[ \t]*\\|[ \t]*' 'NR>1{print $0}' "$DB_FILE") | print_table
 }
 
 read_filter_by_priority() {
     priority_valid
-    awk -F '[ \t]*\\|[ \t]*' -v p="$priority" '$3 == p || NR == 1' "$DB_FILE" | print_table
+    (echogreen "$(awk -F '[ \t]*\\|[ \t]*' 'NR==1{print $0}' "$DB_FILE")"; awk -F '[ \t]*\\|[ \t]*' -v p="$priority" '$3 == p' "$DB_FILE") | print_table
 }
 
 read_filter_by_status() {
     status_valid
-    awk -F '[ \t]*\\|[ \t]*' -v s="$status" '$5 == s || NR == 1' "$DB_FILE" | print_table
+    (echogreen "$(awk -F '[ \t]*\\|[ \t]*' 'NR==1{print $0}' "$DB_FILE")"; awk -F '[ \t]*\\|[ \t]*' -v s="$status" '$5 == s' "$DB_FILE") | print_table
 }
 
 search_in_db() {
-    # res=$(awk 'NR == 1 {print $0}' "$DB_FILE")
-    # res+=$'\n'$(awk -F '[ \t]*\\|[ \t]*' -v t=$title 'NR != 1 {if ($2 ~ t) print $0}' "$DB_FILE")
-    # echo "$res" | print_table
-    awk -F'[ \t]*\\|[ \t]*' -v t=$title '{if (NR == 1) print $0; if (NR > 1 && tolower($2) ~ tolower(t)) print $0}' "$DB_FILE" | print_table
+    (echogreen "$(awk -F '[ \t]*\\|[ \t]*' 'NR==1{print $0}' "$DB_FILE")"; awk -F '[ \t]*\\|[ \t]*' -v t="$title" 'NR>1 && tolower($2) ~ tolower(t){print $0}' "$DB_FILE") | print_table
 }
 
 generate_id() {
@@ -43,18 +40,22 @@ generate_id() {
 
 write_task_in_db() {
     echo "${NEW_ID} | ${1} | ${2} | ${3} | pending" >> "$DB_FILE"
-    echo "Task added successfully."
+    echogreen "Task added successfully."
+	(echogreen "$(awk -F '[ \t]*\\|[ \t]*' 'NR==1{print $0}' "$DB_FILE")"; awk -F '[ \t]*\\|[ \t]*' -v id="$NEW_ID" 'NR>1 && $1 == id {print $0}' "$DB_FILE") | print_table
+	read -p "Press any key to continue"
 }
 
 delete_task_from_db() {
     sed -i "${1}d" "$DB_FILE"
-    echo "Task id ${1} has been deleted"
+    echogreen "Task id ${1} has been deleted"
 }
 
 update_task_in_db() {
     formatted_line="${6} | ${2} | ${3} | ${4} | ${5}"
     sed -i "${1}s#.*#${formatted_line}#" "$DB_FILE"
-    echo "Task updated successfully."
+    echogreen "Task updated successfully."
+	(echogreen "$(awk -F '[ \t]*\\|[ \t]*' 'NR==1{print $0}' "$DB_FILE")"; awk -F '[ \t]*\\|[ \t]*' -v id="${6}" 'NR>1 && $1 == id {print $0}' "$DB_FILE") | print_table
+	read -p "Press any key to continue"
 }
 
 export_db_to_CSV() {
@@ -62,15 +63,13 @@ export_db_to_CSV() {
 }
 
 sort_by_date() {
-    res=$(awk -F '[ \t]*\\|[ \t]*' 'NR == 1{print $0}' "$DB_FILE")
-    res+=$'\n'$(awk -F '[ \t]*\\|[ \t]*' 'NR > 1 {print $0}' "$DB_FILE" | sort -t '|' -k4)
-    echo "$res" | print_table
+    (echogreen "$(awk -F '[ \t]*\\|[ \t]*' 'NR == 1{print $0}' "$DB_FILE")"; \
+    awk -F '[ \t]*\\|[ \t]*' 'NR > 1 {print $0}' "$DB_FILE" | sort -t '|' -k4) | print_table
 }
 
 sort_by_priority() {
-    res=$(awk -F '[ \t]*\\|[ \t]*' 'NR == 1{print $0}' "$DB_FILE")
-    res+=$'\n'$(awk -F '[ \t]*\\|[ \t]*' -v p="high" '$3 == p' "$DB_FILE")
-    res+=$'\n'$(awk -F '[ \t]*\\|[ \t]*' -v p="medium" '$3 == p' "$DB_FILE")
-    res+=$'\n'$(awk -F '[ \t]*\\|[ \t]*' -v p="low" '$3 == p' "$DB_FILE")
-    echo "$res" | print_table
+    (echogreen "$(awk -F '[ \t]*\\|[ \t]*' 'NR == 1{print $0}' "$DB_FILE")"; \
+    awk -F '[ \t]*\\|[ \t]*' -v p="high" '$3 == p' "$DB_FILE"; \
+    awk -F '[ \t]*\\|[ \t]*' -v p="medium" '$3 == p' "$DB_FILE"; \
+    awk -F '[ \t]*\\|[ \t]*' -v p="low" '$3 == p' "$DB_FILE") | print_table
 }

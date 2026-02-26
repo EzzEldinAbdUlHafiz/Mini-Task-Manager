@@ -34,7 +34,7 @@ date_valid() {
 
         if [[ $? -eq 0 ]]; then
             duedate=$formatted_date
-            echo "Date validated and saved as: $duedate"
+            echogreen "Date validated and saved as: $duedate"
             break
         else
             echored "Error: '$date_input' is not a recognized date. Please try again."

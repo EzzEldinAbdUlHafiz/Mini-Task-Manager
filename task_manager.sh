@@ -13,20 +13,22 @@ source ./reports.sh
 
 DB_FILE="database"
 
+
 init_db() {
     if [ -f $DB_FILE ]; then
-        echo "$DB_FILE exists."
+        echogreen "$DB_FILE exists."
     else
-        echo -e "$DB_FILE does not exist \n creating the $DB_FILE"
+        echoyellow "$DB_FILE does not exist"
+        echogreen "creating the $DB_FILE"
         touch $DB_FILE
-        echo "ID | TITLE | PRIORITY | DUE-DATE | STATUS" > $DB_FILE
+        (echogreen "ID | TITLE | PRIORITY | DUE-DATE | STATUS") > $DB_FILE
     fi
 }
 
 list_tasks() {
     while true; do
         echo
-        PS3="Choose what to list: "
+        PS3=$(echoblue "Choose what to list: ")
         options=("List All Tasks" "Filter By Priority" "Filter By status" "Back to Main Menu")
         select list_choice in "${options[@]}"; do
             case "$list_choice" in
@@ -71,7 +73,7 @@ update_task() {
     line_num=$(awk -v id="$task_id" '$1 == id {print NR}' $DB_FILE)
 
     if [ -z "$line_num" ]; then
-        echo "Error: Task ID not found."
+        echored "Error: Task ID not found."
         return
     fi
 
@@ -82,32 +84,36 @@ update_task() {
 
     while true; do
         echo
-        PS3="Choose what you want to update: "
+        PS3=$(echoblue "Choose what you want to update: ")
         options=("Update Title" "Update Priority" "Update Due Date" "Update Status" "Back to Main Menu")
         select update_choice in "${options[@]}"; do
             case "$update_choice" in
                 "Update Title")
                     clear
-                    echo "---- UPDATE TITLE ----"
+                    echoyellow "---- UPDATE TITLE ----"
                     title_valid
+                    update_task_in_db "$line_num" "$title" "$priority" "$duedate" "$status" "$task_id"
                     break
                     ;;
                 "Update Priority")
                     clear
-                    echo "---- UPDATE PRIORITY ----"
+                    echoyellow "---- UPDATE PRIORITY ----"
                     priority_valid
+                    update_task_in_db "$line_num" "$title" "$priority" "$duedate" "$status" "$task_id"
                     break
                     ;;
                 "Update Due Date")
                     clear
-                    echo "---- UPDATE DUE DATE ----"
+                    echoyellow "---- UPDATE DUE DATE ----"
                     date_valid
+                    update_task_in_db "$line_num" "$title" "$priority" "$duedate" "$status" "$task_id"
                     break
                     ;;
                 "Update Status")
                     clear
-                    echo "---- UPDATE STATUS ----"
+                    echoyellow "---- UPDATE STATUS ----"
                     status_valid
+                    update_task_in_db "$line_num" "$title" "$priority" "$duedate" "$status" "$task_id"
                     break
                     ;;
                 "Back to Main Menu")
@@ -118,9 +124,8 @@ update_task() {
                     ;;
             esac
         done
+        break
     done
-
-    update_task_in_db "$line_num" "$title" "$priority" "$duedate" "$status" "$task_id"
 }
 
 delete_task() {
@@ -141,9 +146,9 @@ delete_task() {
     done
 
     while true; do
-        echo "Are you sure you want to delete task ID number "${task_id}
+        echoyellow "Are you sure you want to delete task ID number "${task_id}
         echo
-        PS3="Your choice: "
+        PS3=$(echoblue "Your choice: ")
         options=("YES" "NO")
         select delete_choice in "${options[@]}"; do
             case "$delete_choice" in
@@ -174,25 +179,8 @@ search_task() {
 export_to_CSV() {
     read -rp "Enter the file name:" filename
     export_db_to_CSV "${filename}"
-    echo "${filename}.csv has been created"
-}
-
-# MAIN MENU DISPLAY
-show_menu() {
-    echopurple "=========================================="
-    echopurple "            MINI TASK MANAGER"
-    echopurple "=========================================="
-    echo
-    echoblue "1) Add Task"
-    echoblue "2) List Tasks"
-    echoblue "3) Update Task"
-    echoblue "4) Delete Task"
-    echoblue "5) Search Task"
-    echoblue "6) Reports"
-    echoblue "7) Export To A CSV File"
-    echoblue "8) Sort tasks"
-    echoblue "9) Exit"
-    echo
+    echogreen "${filename}.csv has been created"
+    read -p "Press any key to continue"
 }
 
 # REPORTS MENU
@@ -202,25 +190,25 @@ show_reports_menu() {
         echopurple "                REPORTS"
         echopurple "=========================================="
         echo
-        PS3="Enter your choice: "
+        PS3=$(echoblue "Enter your choice: ")
         options=("Task Summary" "Overdue Tasks" "Priority Report" "Back to Main Menu")
         select report_choice in "${options[@]}"; do
             case "$report_choice" in
                 "Task Summary")
                     clear
-                    echo "---- TASK SUMMARY ----"
+                    echoyellow "---- TASK SUMMARY ----"
                     report_summary
                     break
                     ;;
                 "Overdue Tasks")
                     clear
-                    echo "---- OVERDUE TASKS ----"
+                    echoyellow "---- OVERDUE TASKS ----"
                     report_overdue
                     break
                     ;;
                 "Priority Report")
                     clear
-                    echo "---- PRIORITY REPORT ----"
+                    echoyellow "---- PRIORITY REPORT ----"
                     report_priority
                     break
                     ;;
@@ -242,19 +230,19 @@ sorting_menu() {
         echopurple "                SORTING"
         echopurple "=========================================="
         echo
-        PS3="Enter your choice: "
+        PS3=$(echoblue "Enter your choice: ")
         options=("Sort By Date" "Sort By Priority" "Back to Main Menu")
         select report_choice in "${options[@]}"; do
             case "$report_choice" in
                 "Sort By Date")
                     clear
-                    echo "---- Sort By Date ----"
+                    echoyellow "---- Sort By Date ----"
                     sort_by_date
                     break
                     ;;
                 "Sort By Priority")
                     clear
-                    echo "---- Sort By Priority ----"
+                    echoyellow "---- Sort By Priority ----"
                     sort_by_priority
                     break
                     ;;
@@ -290,13 +278,13 @@ main() {
         echo
 
         # Using select for the main menu
-        PS3="Enter your choice: "
+        PS3=$(echoblue "Enter your choice: ")
         options=("Add Task" "List Tasks" "Update Task" "Delete Task" "Search Task" "Reports" "Export To A CSV File" "Sort tasks" "Exit")
         select choice in "${options[@]}"; do
             case "$choice" in
                 "Add Task")
                     clear
-                    echo "---- ADD TASK ----"
+                    echoyellow "---- ADD TASK ----"
                     add_task
                     break
                     ;;
@@ -356,4 +344,3 @@ main() {
 
 # Run Main
 main
-
