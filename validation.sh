@@ -50,7 +50,7 @@ date_valid() {
     while true; do
         read -p "Enter a duedate (e.g., 2026/12/31, 'next Friday', 'tomorrow'): " date_input
 
-        formatted_date=$(date -d "$date_input" "+%Y/%m/%d" 2>/dev/null)
+        formatted_date=$(date -d "$date_input" "+%Y-%m-%d" 2>/dev/null)
 
         if [[ $? -eq 0 ]]; then
             duedate=$formatted_date

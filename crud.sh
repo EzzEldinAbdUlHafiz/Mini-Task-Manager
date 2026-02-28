@@ -51,7 +51,7 @@ delete_task_from_db() {
 
 update_task_in_db() {
     formatted_line="${6} | ${2} | ${3} | ${4} | ${5}"
-    sed -i "${1}s#.*#${formatted_line}#" "$DB_FILE"
+    sed -i "${1}s/.*/${formatted_line}/" "$DB_FILE"
     echogreen "Task updated successfully."
 	(echogreen "$(awk -F '[ \t]*\\|[ \t]*' 'NR==1{print $0}' "$DB_FILE")"; awk -F '[ \t]*\\|[ \t]*' -v id="${6}" 'NR>1 && $1 == id {print $0}' "$DB_FILE") | print_table
     read -p "Press any key to continue"
