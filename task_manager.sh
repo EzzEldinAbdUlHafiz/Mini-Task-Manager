@@ -263,11 +263,9 @@ main() {
     echopurple "=========================================="
     echopurple "        MINI TASK MANAGER STARTED"
     echopurple "=========================================="
-
     init_db
 
     while true; do
-        clear
         echopurple "=========================================="
         echopurple "            MINI TASK MANAGER"
         echopurple "=========================================="
@@ -281,45 +279,53 @@ main() {
                     clear
                     echoyellow "---- ADD TASK ----"
                     add_task
+                    clear
                     break
                     ;;
                 "List Tasks")
                     clear
                     echoyellow "---- LIST TASKS ----"
                     list_tasks
+                    clear
                     break
                     ;;
                 "Update Task")
                     clear
                     echoyellow "---- UPDATE TASK ----"
                     update_task
+                    clear
                     break
                     ;;
                 "Delete Task")
                     clear
                     echoyellow "---- DELETE TASK ----"
                     delete_task
+                    clear
                     break
                     ;;
                 "Search Task")
                     clear
                     echoyellow "---- SEARCH TASK ----"
                     search_task
+                    clear
                     break
                     ;;
                 "Reports")
                     clear
                     show_reports_menu
+                    clear
                     break
                     ;;
                 "Export To A CSV File")
                     clear
                     export_to_CSV
+                    clear
                     break
                     ;;
                 "Sort tasks")
                     clear
                     sorting_menu
+                    clear
                     break
                     ;;
                 "Exit")
