@@ -24,16 +24,6 @@ read_filter_by_status() {
     (echogreen "$(awk -F '[ \t]*\\|[ \t]*' 'NR==1{print $0}' "$DB_FILE")"; awk -F '[ \t]*\\|[ \t]*' -v s="$status" '$5 == s' "$DB_FILE") | print_table
 }
 
-# search_by_name() {
-#     (echogreen "$(awk -F '[ \t]*\\|[ \t]*' 'NR==1{print $0}' "$DB_FILE")"; awk -F '[ \t]*\\|[ \t]*' -v t="$title" 'NR>1 && tolower($2) ~ tolower(t){print $0}' "$DB_FILE") | print_table
-#     read -p "Press any key to continue"
-# }
-
-# search_by_regex() {
-#     (echogreen "$(awk -F '[ \t]*\\|[ \t]*' 'NR==1{print $0}' "$DB_FILE")"; awk -F '[ \t]*\\|[ \t]*' -v t="\\$title" 'NR>1 && tolower($2) ~ tolower(t){print $0}' "$DB_FILE") | print_table
-#     read -p "Press any key to continue"
-# }
-
 search_in_db() {
     (echogreen "$(awk -F '[ \t]*\\|[ \t]*' 'NR==1{print $0}' "$DB_FILE")"; awk -F '[ \t]*\\|[ \t]*' 'NR>1 {print $0}' "$DB_FILE" | grep -i "$title") | print_table
 }

@@ -79,9 +79,9 @@ update_task() {
     fi
 
     title=$(awk -v id="$task_id" -F '[ \t]*\\|[ \t]*' '$1 == id {print $2}' $DB_FILE)
-    priority=$(awk -v id="$task_id"  -F '[ \t]*\\|[ \t]*' '$1 == id {print $3}' $DB_FILE)
-    duedate=$(awk -v id="$task_id"  -F '[ \t]*\\|[ \t]*' '$1 == id {print $4}' $DB_FILE)
-    status=$(awk -v id="$task_id"  -F '[ \t]*\\|[ \t]*' '$1 == id {print $5}' $DB_FILE)
+    priority=$(awk -v id="$task_id" -F '[ \t]*\\|[ \t]*' '$1 == id {print $3}' $DB_FILE)
+    duedate=$(awk -v id="$task_id" -F '[ \t]*\\|[ \t]*' '$1 == id {print $4}' $DB_FILE)
+    status=$(awk -v id="$task_id" -F '[ \t]*\\|[ \t]*' '$1 == id {print $5}' $DB_FILE)
 
     while true; do
         echo
@@ -184,7 +184,6 @@ export_to_CSV() {
     read -p "Press any key to continue"
 }
 
-# REPORTS MENU
 show_reports_menu() {
     while true; do
         echopurple "=========================================="
@@ -259,18 +258,14 @@ sorting_menu() {
     done
 }
 
-# MAIN PROGRAM LOOP
 main() {
-    # Initialize database file if not exists
     clear
-
     echopurple "=========================================="
     echopurple "        MINI TASK MANAGER STARTED"
     echopurple "=========================================="
 
     init_db
 
-    # Infinite loop
     while true; do
         clear
         echopurple "=========================================="
@@ -278,7 +273,6 @@ main() {
         echopurple "=========================================="
         echo
 
-        # Using select for the main menu
         PS3=$(echoblue "Enter your choice: ")
         options=("Add Task" "List Tasks" "Update Task" "Delete Task" "Search Task" "Reports" "Export To A CSV File" "Sort tasks" "Exit")
         select choice in "${options[@]}"; do
@@ -339,9 +333,8 @@ main() {
                     echored "Invalid option! Please choose a number from the menu."
                     ;;
             esac
-        done # End of select loop
-    done # End of main while true loop
+        done
+    done
 }
 
-# Run Main
 main
