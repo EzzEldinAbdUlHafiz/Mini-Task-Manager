@@ -64,6 +64,7 @@ add_task(){
     priority_valid
     date_valid
     write_task_in_db "$title" "$priority" "$duedate"
+    read -p "Press any key to continue"
 }
 
 update_task() {
@@ -125,6 +126,7 @@ update_task() {
             esac
         done
         break
+        read -p "Press any key to continue"
     done
 }
 
