@@ -13,54 +13,49 @@ source ./reports.sh
 
 DB_FILE="database"
 
+
 init_db() {
-        if [ -f $DB_FILE ]; then
-                echo "$DB_FILE exists."
-        else
-                echo -e "$DB_FILE does not exist \n creating the $DB_FILE"
-                touch $DB_FILE
-                echo "ID | TITLE | PRIORITY | DUE-DATE | STATUS" > $DB_FILE
-        fi
+    if [ -f $DB_FILE ]; then
+        echogreen "$DB_FILE exists."
+    else
+        echoyellow "$DB_FILE does not exist"
+        echogreen "creating the $DB_FILE"
+        touch $DB_FILE
+        (echogreen "ID | TITLE | PRIORITY | DUE-DATE | STATUS") > $DB_FILE
+    fi
 }
 
 list_tasks() {
-	while true; do
-
-                echo
-                echoblue "1) List All Tasks"
-                echoblue "2) Filter By Priority"
-                echoblue "3) Filter By status"
-                echoblue "4) Back to Main Menu"
-                echo
-
-                read -rp "Choose what to list: " list_choice
-
-                case "$list_choice" in
-                        1)
-                                clear
-                                read_all_from_db
-                                ;;
-                        2)
-                                clear
-                                read_filter_by_priority
-                                ;;
-
-                        3)
-                                clear
-                                read_filter_by_status
-                                ;;
-
-                        4)
-                                break
-                                ;;
-
-                        *)
-                                echored "Invalid option! Please choose 1-4."
-                                ;;
-
-                esac
-
+    while true; do
+        echo
+        PS3=$(echoblue "Choose what to list: ")
+        options=("List All Tasks" "Filter By Priority" "Filter By status" "Back to Main Menu")
+        select list_choice in "${options[@]}"; do
+            case "$list_choice" in
+                "List All Tasks")
+                    clear
+                    read_all_from_db
+                    break
+                    ;;
+                "Filter By Priority")
+                    clear
+                    read_filter_by_priority
+                    break
+                    ;;
+                "Filter By status")
+                    clear
+                    read_filter_by_status
+                    break
+                    ;;
+                "Back to Main Menu")
+                    break 2
+                    ;;
+                *)
+                    echored "Invalid option! Please choose a number from the menu."
+                    ;;
+            esac
         done
+    done
 }
 
 add_task(){
@@ -69,329 +64,277 @@ add_task(){
     priority_valid
     date_valid
     write_task_in_db "$title" "$priority" "$duedate"
+    read -p "Press any key to continue"
 }
 
 update_task() {
-	read_all_from_db
-        read -p "Enter the task ID: " task_id
+    read_all_from_db
+    read -p "Enter the task ID: " task_id
 
-        line_num=$(awk -v id="$task_id" '$1 == id {print NR}' $DB_FILE)
+    line_num=$(awk -v id="$task_id" '$1 == id {print NR}' $DB_FILE)
 
-        if [ -z "$line_num" ]; then
-                echo "Error: Task ID not found."
-                return
-        fi
+    if [ -z "$line_num" ]; then
+        echored "Error: Task ID not found."
+        return
+    fi
 
-	title=$(awk -v id="$task_id" -F '[ \t]*\\|[ \t]*' '$1 == id {print $2}' $DB_FILE)
-        priority=$(awk -v id="$task_id"  -F '[ \t]*\\|[ \t]*' '$1 == id {print $3}' $DB_FILE)
-        duedate=$(awk -v id="$task_id"  -F '[ \t]*\\|[ \t]*' '$1 == id {print $4}' $DB_FILE)
-        status=$(awk -v id="$task_id"  -F '[ \t]*\\|[ \t]*' '$1 == id {print $5}' $DB_FILE)
+    title=$(awk -v id="$task_id" -F '[ \t]*\\|[ \t]*' '$1 == id {print $2}' $DB_FILE)
+    priority=$(awk -v id="$task_id" -F '[ \t]*\\|[ \t]*' '$1 == id {print $3}' $DB_FILE)
+    duedate=$(awk -v id="$task_id" -F '[ \t]*\\|[ \t]*' '$1 == id {print $4}' $DB_FILE)
+    status=$(awk -v id="$task_id" -F '[ \t]*\\|[ \t]*' '$1 == id {print $5}' $DB_FILE)
 
-	while true; do
-
-                echo
-                echoblue "1) Update Title"
-                echoblue "2) Update Priority"
-                echoblue "3) Update Due Date"
-                echoblue "4) Update Status"
-                echoblue "5) Back to Main Menu"
-                echo
-
-                read -rp "Choose what you want to update: " update_choice
-
-                case "$update_choice" in
-                        1)
-                                clear
-                                echo "---- UPDATE TITLE ----"
-                                title_valid
-				break
-                                ;;
-                        2)
-                                clear
-                                echo "---- UPDATE PRIORITY ----"
-                                priority_valid
-				break
-                                ;;
-
-                        3)
-                                clear
-                                echo "---- UPDATE DUE DATE ----"
-                                date_valid
-				break
-                                ;;
-
-                        4)
-                                clear
-                                echo "---- UPDATE STATUS ----"
-                                status_valid
-				break
-                                ;;
-                        5)
-                                break
-                                ;;
-
-                        *)
-                                echored "Invalid option! Please choose 1-5."
-                                ;;
-
-                esac
-
+    while true; do
+        echo
+        PS3=$(echoblue "Choose what you want to update: ")
+        options=("Update Title" "Update Priority" "Update Due Date" "Update Status" "Back to Main Menu")
+        select update_choice in "${options[@]}"; do
+            case "$update_choice" in
+                "Update Title")
+                    clear
+                    echoyellow "---- UPDATE TITLE ----"
+                    title_valid
+                    update_task_in_db "$line_num" "$title" "$priority" "$duedate" "$status" "$task_id"
+                    break
+                    ;;
+                "Update Priority")
+                    clear
+                    echoyellow "---- UPDATE PRIORITY ----"
+                    priority_valid
+                    update_task_in_db "$line_num" "$title" "$priority" "$duedate" "$status" "$task_id"
+                    break
+                    ;;
+                "Update Due Date")
+                    clear
+                    echoyellow "---- UPDATE DUE DATE ----"
+                    date_valid
+                    update_task_in_db "$line_num" "$title" "$priority" "$duedate" "$status" "$task_id"
+                    break
+                    ;;
+                "Update Status")
+                    clear
+                    echoyellow "---- UPDATE STATUS ----"
+                    status_valid
+                    update_task_in_db "$line_num" "$title" "$priority" "$duedate" "$status" "$task_id"
+                    break
+                    ;;
+                "Back to Main Menu")
+                    break 2
+                    ;;
+                *)
+                    echored "Invalid option! Please choose a number from the menu."
+                    ;;
+            esac
         done
-
-	update_task_in_db "$line_num" "$title" "$priority" "$duedate" "$status" "$task_id"
-
+        break
+    done
 }
 
 delete_task() {
-	read_all_from_db
-	read -p "Enter the task ID:: " task_id
+    read_all_from_db
 
-        line_num=$(awk -v id="${task_id}" '$1 == id {print NR}' $DB_FILE)
-	if [ -z "$line_num" ]; then
-                echo "Error: Task ID not found."
-                return
+    while true; do
+        read -p "Enter the task ID:: " task_id
+        if [[ "$task_id" =~ ^[0-9]+$ ]]; then
+            line_num=$(awk -v id="${task_id}" '$1 == id {print NR}' $DB_FILE)
+            if [ -z "$line_num" ]; then
+                echored "Error: Task ID not found."
+            else
+                break
+            fi
+        else
+            echored "Error: Task ID must be a number."
         fi
+    done
 
-	while true; do
-
-		echo "Are you sure you want to delete task ID number "${task_id}
-                echo
-                echoblue "1) YES"
-                echoblue "2) NO"
-                echo
-
-		read -rp "Your choice: " delete_choice
-
-                case "$delete_choice" in
-                        1)
-                                clear
-				delete_task_from_db "${line_num}"
-                                break
-                                ;;
-                        2)
-				clear
-                                break
-                                ;;
-
-                        *)
-                                echored "Invalid option! Please choose YES or NO."
-                                ;;
-
-                esac
-
+    while true; do
+        echoyellow "Are you sure you want to delete task ID number "${task_id}
+        echo
+        PS3=$(echoblue "Your choice: ")
+        options=("YES" "NO")
+        select delete_choice in "${options[@]}"; do
+            case "$delete_choice" in
+                "YES")
+                    clear
+                    delete_task_from_db "${line_num}"
+                    break 2
+                    ;;
+                "NO")
+                    clear
+                    break 2
+                    ;;
+                *)
+                    echored "Invalid option! Please choose YES or NO."
+                    ;;
+            esac
         done
+    done
 }
 
 search_task() {
-	title_valid
-	clear
-	search_in_db
+    title_valid
+    clear
+    search_in_db
+    read -p "Press any key to continue"
 }
 
 export_to_CSV() {
-        read -rp "Enter the file name:" filename
-        export_db_to_CSV "${filename}"
-        echo "${filename}.csv has been created"
-                                        
-}
-	
-
-# MAIN MENU DISPLAY
-show_menu() {
-
-    echopurple "=========================================="
-    echopurple "            MINI TASK MANAGER"
-    echopurple "=========================================="
-    echo
-    echoblue "1) Add Task"
-    echoblue "2) List Tasks"
-    echoblue "3) Update Task"
-    echoblue "4) Delete Task"
-    echoblue "5) Search Task"
-    echoblue "6) Reports"
-    echoblue "7) Export To A CSV File"
-    echoblue "8) Sort tasks"
-    echoblue "9) Exit"
-    echo
+    read -rp "Enter the file name:" filename
+    export_db_to_CSV "${filename}"
+    echogreen "${filename}.csv has been created"
+    read -p "Press any key to continue"
 }
 
-# REPORTS MENU
 show_reports_menu() {
-
     while true; do
-
         echopurple "=========================================="
         echopurple "                REPORTS"
         echopurple "=========================================="
         echo
-        echoblue "1) Task Summary"
-        echoblue "2) Overdue Tasks"
-        echoblue "3) Priority Report"
-        echoblue "4) Back to Main Menu"
-        echo
-
-        read -rp "Enter your choice: " report_choice
-
-        case "$report_choice" in
-
-            1)
-                clear
-                echo "---- TASK SUMMARY ----"
-                report_summary
-                ;;
-
-            2)
-                clear
-                echo "---- OVERDUE TASKS ----"
-                report_overdue
-                ;;
-
-            3)
-                clear
-                echo "---- PRIORITY REPORT ----"
-                report_priority
-                ;;
-
-            4)
-                clear
-                return
-                ;;
-
-            *)
-                echored "Invalid option! Please choose 1-4."
-                ;;
-
-        esac
-
+        PS3=$(echoblue "Enter your choice: ")
+        options=("Task Summary" "Overdue Tasks" "Priority Report" "Back to Main Menu")
+        select report_choice in "${options[@]}"; do
+            case "$report_choice" in
+                "Task Summary")
+                    clear
+                    echoyellow "---- TASK SUMMARY ----"
+                    report_summary
+                    break
+                    ;;
+                "Overdue Tasks")
+                    clear
+                    echoyellow "---- OVERDUE TASKS ----"
+                    report_overdue
+                    break
+                    ;;
+                "Priority Report")
+                    clear
+                    echoyellow "---- PRIORITY REPORT ----"
+                    report_priority
+                    break
+                    ;;
+                "Back to Main Menu")
+                    clear
+                    return
+                    ;;
+                *)
+                    echored "Invalid option! Please choose a number from the menu."
+                    ;;
+            esac
+        done
     done
 }
 
 sorting_menu() {
-
     while true; do
-
         echopurple "=========================================="
         echopurple "                SORTING"
         echopurple "=========================================="
         echo
-        echoblue "1) Sort By Date"
-        echoblue "2) Sort By Priority"
-        echoblue "3) Back to Main Menu"
-        echo
-
-        read -rp "Enter your choice: " report_choice
-
-        case "$report_choice" in
-
-            1)
-                clear
-                echo "---- Sort By Date ----"
-                sort_by_date
-                ;;
-
-            2)
-                clear
-                echo "---- Sort By Priority ----"
-                sort_by_priority
-                ;;
-
-            3)
-                clear
-                return
-                ;;
-
-            *)
-                echored "Invalid option! Please choose 1-3."
-                ;;
-
-        esac
-
+        PS3=$(echoblue "Enter your choice: ")
+        options=("Sort By Date" "Sort By Priority" "Back to Main Menu")
+        select report_choice in "${options[@]}"; do
+            case "$report_choice" in
+                "Sort By Date")
+                    clear
+                    echoyellow "---- Sort By Date ----"
+                    sort_by_date
+                    break
+                    ;;
+                "Sort By Priority")
+                    clear
+                    echoyellow "---- Sort By Priority ----"
+                    sort_by_priority
+                    break
+                    ;;
+                "Back to Main Menu")
+                    clear
+                    return
+                    ;;
+                *)
+                    echored "Invalid option! Please choose a number from the menu."
+                    ;;
+            esac
+        done
     done
 }
 
-# MAIN PROGRAM LOOP
 main() {
-
-    # Initialize database file if not exists
     clear
-
     echopurple "=========================================="
     echopurple "        MINI TASK MANAGER STARTED"
     echopurple "=========================================="
 
     init_db
 
-    # Infinite loop
     while true; do
-	show_menu
-        read -rp "Enter your choice: " choice
+        clear
+        echopurple "=========================================="
+        echopurple "            MINI TASK MANAGER"
+        echopurple "=========================================="
+        echo
 
-        case "$choice" in
-
-            1)
-                clear
-                echo "---- ADD TASK ----"
-                add_task
-                ;;
-
-            2)
-                clear
-                echoyellow "---- LIST TASKS ----"
-                list_tasks
-                ;;
-
-            3)
-                clear
-                echoyellow "---- UPDATE TASK ----"
-                update_task
-                ;;
-
-            4)
-                clear
-                echoyellow "---- DELETE TASK ----"
-                delete_task
-                ;;
-
-            5)
-                clear
-                echoyellow "---- SEARCH TASK ----"
-                search_task
-                ;;
-
-            6)
-                clear
-                show_reports_menu
-                ;;
-                
-        
-            7)
-                clear
-                export_to_CSV
-                ;;
-
-
-            8)
-                echo
-                sorting_menu
-                ;;
-
-        9)
-                echo
-                echoyellow "Exiting Task Manager..."
-                echoyellow "Goodbye!"
-                exit 0
-                ;;
-
-            *)
-                echo
-                echored "Invalid option! Please choose between 1-8."
-                ;;
-
-        esac
-
+        PS3=$(echoblue "Enter your choice: ")
+        options=("Add Task" "List Tasks" "Update Task" "Delete Task" "Search Task" "Reports" "Export To A CSV File" "Sort tasks" "Exit")
+        select choice in "${options[@]}"; do
+            case "$choice" in
+                "Add Task")
+                    clear
+                    echoyellow "---- ADD TASK ----"
+                    add_task
+                    break
+                    ;;
+                "List Tasks")
+                    clear
+                    echoyellow "---- LIST TASKS ----"
+                    list_tasks
+                    break
+                    ;;
+                "Update Task")
+                    clear
+                    echoyellow "---- UPDATE TASK ----"
+                    update_task
+                    break
+                    ;;
+                "Delete Task")
+                    clear
+                    echoyellow "---- DELETE TASK ----"
+                    delete_task
+                    break
+                    ;;
+                "Search Task")
+                    clear
+                    echoyellow "---- SEARCH TASK ----"
+                    search_task
+                    break
+                    ;;
+                "Reports")
+                    clear
+                    show_reports_menu
+                    break
+                    ;;
+                "Export To A CSV File")
+                    clear
+                    export_to_CSV
+                    break
+                    ;;
+                "Sort tasks")
+                    clear
+                    sorting_menu
+                    break
+                    ;;
+                "Exit")
+                    echo
+                    echoyellow "Exiting Task Manager..."
+                    echoyellow "Goodbye!"
+                    exit 0
+                    ;;
+                *)
+                    echo
+                    echored "Invalid option! Please choose a number from the menu."
+                    ;;
+            esac
+        done
     done
 }
 
-# Run Main
 main
-
