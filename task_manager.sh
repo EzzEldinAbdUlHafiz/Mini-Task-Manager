@@ -126,7 +126,6 @@ update_task() {
             esac
         done
         break
-        read -p "Press any key to continue"
     done
 }
 

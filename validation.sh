@@ -1,20 +1,24 @@
 #!/bin/bash
 
 title_valid() {
-    # 1. Title Validation (No pipes, not empty)
+
     while true; do
         read -p "Enter the title: " title
+
         if [[ -z "$title" ]]; then
             echored "Error: Title cannot be empty."
         elif [[ "$title" == *"|"* ]]; then
             echored "Error: Title cannot contain the '|' character."
         elif [[ "$title" == *","* ]]; then
             echored "Error: Title cannot contain the ',' character."
+        elif [[ ! "$title" =~ ^[a-zA-Z] ]]; then
+            echored "Error: Title must start with a letter (cannot be only numbers or symbols)."
         else
             break
         fi
     done
 }
+
 
 priority_valid() {
     while true; do

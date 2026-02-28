@@ -52,7 +52,6 @@ write_task_in_db() {
     echo "${NEW_ID} | ${1} | ${2} | ${3} | pending" >> "$DB_FILE"
     echogreen "Task added successfully."
 	(echogreen "$(awk -F '[ \t]*\\|[ \t]*' 'NR==1{print $0}' "$DB_FILE")"; awk -F '[ \t]*\\|[ \t]*' -v id="$NEW_ID" 'NR>1 && $1 == id {print $0}' "$DB_FILE") | print_table
-	read -p "Press any key to continue"
 }
 
 delete_task_from_db() {
@@ -65,7 +64,7 @@ update_task_in_db() {
     sed -i "${1}s#.*#${formatted_line}#" "$DB_FILE"
     echogreen "Task updated successfully."
 	(echogreen "$(awk -F '[ \t]*\\|[ \t]*' 'NR==1{print $0}' "$DB_FILE")"; awk -F '[ \t]*\\|[ \t]*' -v id="${6}" 'NR>1 && $1 == id {print $0}' "$DB_FILE") | print_table
-	read -p "Press any key to continue"
+    read -p "Press any key to continue"
 }
 
 export_db_to_CSV() {
